@@ -91,8 +91,41 @@ En analysant le packet récupéré, on peut voir que le TTL est incrémenté à 
 ```
 Le TTL est donc **13**.
 
-## 7. 
+## 7. LDAP - null bind
 
+Le titre et l’énoncé nous apporte les informations suivantes :
+
+LDAP : Nous avons affaire à un annuaire LDAP (challenge01.root-me.org:54013)
+null bind : Ce dernier proposera surement une authentification anonyme (option -x de ldapsearch)
+"anonymous se soit installé" : le coupable est identifié... retenons le pour tout à l’heure
+"dc=challenge01,dc=root-me,dc=org" : sera notre point de départ pour les recherches
+Pour chercher au sein d’une base LDAP on va se munir de ldapsearch, et confirmer notre point de départ en listant les contextes accessibles :
+
+$ ldapsearch -x -h challenge01.root-me.org -p 54013 "(ObjectClass=*)" "namingContexts" -LLL
+No such object (32)
+Déception, pas d’informations supplémentaires par ici, l’ensemble a l’air bien foutu.... à moins que ?
+
+On tente alors de faire une recherche à partir du point de base de l’énoncé, afin de retourner tous les enregistrements :
+
+$ ldapsearch -x -h challenge01.root-me.org -p 54013 -b "dc=challenge01,dc=root-me,dc=org" -LLL
+Insufficient access (50)
+Il semble que les droits d’accès sur la base sont restreints et il sera alors compliqué de connaitre l’arborescence... mais maintenant souvenons nous qu’anonymous s’est installé, les droits d’accès n’ont pas dû être paramétrés comme il faut... Tentons alors l’unité d’organisation (OU) "anonymous" par hasard... :
+
+$ ldapsearch -x -h challenge01.root-me.org -p 
+54013 -b "ou=anonymous,dc=challenge01,dc=root-me,dc=org" -LLL
+dn: ou=anonymous,dc=challenge01,dc=root-me,dc=org
+objectClass: organizationalUnit
+ou: anonymous
+
+dn: uid=sabu,ou=anonymous,dc=challenge01,dc=root-me,dc=org
+objectClass: inetOrgPerson
+objectClass: shadowAccount
+uid: sabu
+sn: sabu
+cn: sabu
+givenName: sabu
+mail: sabu@anonops.org
+Gagné, le flag est sabu@anonops.org
 ## 8. SIP - Authentification
 
 En regardant le fichier de log donné, on remarque la première ligne qui contient un `REGISTER` avec en fin de ligne **1234** :
