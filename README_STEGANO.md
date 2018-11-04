@@ -5,7 +5,8 @@
 En changeant le contraste de l'image, on apperçoit en haut à droite une chaîne de caractères **TOTORO**
 
 ## 2. Pas très carré
-
+On peut ouvrir l'image avec un éditeur de texte comme "Atom" ou "Notepad++". Puis, à la ligne "536", on peut voir la phrase suivante :
+"PASS=HAHAHA"
 ## 3. Twitter Secret Messages
 
 En utilisant le [site]("http://holloway.co.nz/steg/") avec lequel a été encrypté le message, on retrouve la phrase "rendezvous at grand central terminal on friday.".
